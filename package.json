@@ -4,7 +4,7 @@
   "description": "Cellular automata thing",
   "main": "index.js",
   "scripts": {
-    "start": "index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/grantamos/celltomata/issues"
   },
-  "homepage": "https://github.com/grantamos/celltomata"
+  "homepage": "https://github.com/grantamos/celltomata",
+  "engines": {
+    "node": "0.12.7"
+  }
 }
