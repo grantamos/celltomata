@@ -24,7 +24,7 @@ function init() {
   camera.position.z = 50;
   scene.add(camera);
 
-  spriteMesh = generateSpriteMesh(tileSize, tileSize);
+  spriteMesh = generateSpriteMesh(tileSize, tileSize, true);
   scene.add(spriteMesh);
 
   renderer = new THREE.WebGLRenderer();
@@ -44,7 +44,15 @@ function render() {
   renderer.render(scene, camera);
 }
 
-function generateSpriteMesh(xSize, ySize) {
+function generateSpriteMesh(xSize, ySize, isSymmetric) {
+  var xOffset = (xSize / 2);
+  var yOffset = (ySize / 2)
+  if (isSymmetric) {
+    xSize /= 2;
+    xOffset = 0;
+    yOffset = 0;
+  }
+
   var sprite = generateSprite(xSize, ySize);
   var sprite3d = new THREE.Object3D();
 
@@ -52,12 +60,19 @@ function generateSpriteMesh(xSize, ySize) {
     for (var y = 0; y < sprite[x].length; y++) {
       if (sprite[x][y] == 0)
         continue;
+
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
       var material = new THREE.MeshNormalMaterial();
       var cube = new THREE.Mesh( geometry, material );
-      
+      cube.position.set(x - xOffset, y - yOffset, 0);
+
       sprite3d.add(cube);
-      cube.position.set(x - (xSize / 2), y - (ySize / 2), 0);
+
+      if (isSymmetric) {
+        cube = cube.clone();
+        cube.position.set(-x, y, 0);
+        sprite3d.add(cube);
+      }
     }
   }
   
@@ -76,7 +91,7 @@ function generateSprite(xSize, ySize) {
 
 function seedSprite(sprite) {
   for (var x = 0; x < sprite.length; x++) {
-    for (var y = 0; y < sprite.length; y++) {
+    for (var y = 0; y < sprite[x].length; y++) {
       sprite[x][y] = Math.round(Math.random(0, 1));
     }
   }
@@ -123,7 +138,7 @@ function getNeighborCount(sprite, x, y) {
 function applyRule(sprite, minLimit, requiredState, newState) {
   var newSprite = createSprite(sprite.length, sprite[0].length)
   for (var x = 0; x < sprite.length; x++) {
-    for (var y = 0; y < sprite.length; y++) {
+    for (var y = 0; y < sprite[0].length; y++) {
       newSprite[x][y] = sprite[x][y];
       if (sprite[x][y] != requiredState)
         continue;
