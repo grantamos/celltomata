@@ -24,7 +24,9 @@ function init() {
   camera.position.z = 50;
   scene.add(camera);
 
-  spriteMesh = generateSpriteMesh(tileSize, tileSize, true);
+  var sprite = generateSprite(tileSize / 2, tileSize);
+  spriteMesh = generateSpriteMesh(sprite, true);
+
   scene.add(spriteMesh);
 
   renderer = new THREE.WebGLRenderer();
@@ -44,7 +46,9 @@ function render() {
   renderer.render(scene, camera);
 }
 
-function generateSpriteMesh(xSize, ySize, isSymmetric) {
+function generateSpriteMesh(sprite, isSymmetric) {
+  var xSize = sprite.length;
+  var ySize = sprite[0].length;
   var xOffset = (xSize / 2);
   var yOffset = (ySize / 2)
   if (isSymmetric) {
@@ -53,7 +57,6 @@ function generateSpriteMesh(xSize, ySize, isSymmetric) {
     yOffset = 0;
   }
 
-  var sprite = generateSprite(xSize, ySize);
   var sprite3d = new THREE.Object3D();
 
   for (var x = 0; x < sprite.length; x++) {
@@ -87,6 +90,19 @@ function generateSprite(xSize, ySize) {
   }
 
   return sprite;
+}
+
+function generateAnimatableSprite(xSize, ySize) {
+  var spriteFrames = {};
+  var sprite = createSprite(xSize, ySize);
+  sprite = seedSprite(sprite);
+  for (var i = 0; i < iterations; i++) {
+    spriteFrames.firstFrame = sprite;
+    sprite = tick(sprite);
+  }
+  spriteFrames.lastFrame = sprite;
+
+  return spriteFrames;
 }
 
 function seedSprite(sprite) {
