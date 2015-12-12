@@ -67,9 +67,9 @@ function generateSpriteMesh(xSize, ySize) {
 function generateSprite(xSize, ySize) {
   var sprite = createSprite(xSize, ySize);
   sprite = seedSprite(sprite);
-  // for (var i = 0; i < iterations; i++) {
-  //   sprite = tick(sprite);
-  // }
+  for (var i = 0; i < iterations; i++) {
+    sprite = tick(sprite);
+  }
 
   return sprite;
 }
@@ -123,6 +123,7 @@ function applyRule(sprite, minLimit, requiredState, newState) {
   var newSprite = createSprite(sprite.length, sprite[0].length)
   for (var x = 0; x < sprite.length; x++) {
     for (var y = 0; y < sprite.length; y++) {
+      newSprite[x][y] = sprite[x][y];
       if (sprite[x][y] != requiredState)
         continue;
       var count = getNeighborCount(sprite, x, y);
