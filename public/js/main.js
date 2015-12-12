@@ -57,7 +57,7 @@ function generateSpriteMesh(xSize, ySize) {
       var cube = new THREE.Mesh( geometry, material );
       
       sprite3d.add(cube);
-      cube.position.set(x, y, 0);
+      cube.position.set(x - (xSize / 2), y - (ySize / 2), 0);
     }
   }
   
