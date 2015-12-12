@@ -1,11 +1,16 @@
 var camera, scene, renderer, geometry, material, mesh;
 
+var mouse = new THREE.Vector2();
+var raycaster = new THREE.Raycaster();
+var isMouseDown = false;
+
 var sprites = new Array();
 var spriteMesh;
+var seedObjects = new Array();
 
 //Inputs
 var size = 16;
-var tileSize = 16;
+var tileSize = 32;
 var color = "#F00";
 var border = false;
 
@@ -18,16 +23,44 @@ var animFrames = 3;
 init();
 animate();
 
+window.addEventListener( 'mousemove', onMouseMove, false );
+window.addEventListener( 'mousedown', onMouseDown, false );
+window.addEventListener( 'mouseup', onMouseUp, false );
+
 function init() {
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-  camera.position.z = 50;
+  camera.position.z = 80;
   scene.add(camera);
+
+  var plane = createDrawingPlane(tileSize, tileSize);
+  plane.name = "clickableCanvas";
+  scene.add(plane);
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  document.getElementById("generate").onclick = generateSpriteFromDrawnSeed;
+}
+
+function seedFromDrawings(sprite) {
+  for (var i = 0; i < seedObjects.length; i++) {
+    var pos = seedObjects[i].position;
+    sprite[pos.x + tileSize / 2][pos.y + tileSize / 2] = 1;
+  }
+  return sprite;
+}
+
+function generateSpriteFromDrawnSeed() {
+  if (spriteMesh != null) {
+    scene.remove(spriteMesh);
+  }
 
   spriteMesh = new THREE.Object3D();
 
-  var spriteFrames = generateAnimatableSprite(animFrames, iterations, tileSize / 2, tileSize);
+  var spriteFrames = generateAnimatableSprite(animFrames, iterations, tileSize, tileSize, seedFromDrawings);
   for (var i = 0; i < spriteFrames.length; i++) {
     var meshFrame = generateSpriteMesh(spriteFrames[i], true);
     meshFrame.visible = false;
@@ -37,9 +70,17 @@ function init() {
   spriteMesh.currentFrame = 0;
   scene.add(spriteMesh);
 
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  for (var i = 0; i < seedObjects.length; i++) {
+    scene.remove(seedObjects[i]);
+  }
+  seedObjects = new Array();
+}
+
+function createDrawingPlane(xSize, ySize) {
+  var geometry = new THREE.PlaneGeometry(xSize, ySize, 1);
+  var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+  var plane = new THREE.Mesh( geometry, material );
+  return plane;
 }
 
 function animate() {
@@ -51,7 +92,7 @@ var startTime = 0;
 var frameLength = .1;
 function render() {
   startTime += 1/60.0;
-  if (startTime > frameLength) {
+  if (startTime > frameLength && spriteMesh != null) {
     startTime = 0;
 
     var hideFrame = boundsFrame(spriteMesh.currentFrame, spriteMesh.children.length)
@@ -61,7 +102,48 @@ function render() {
     spriteMesh.children[showFrame].visible = true;
   }
 
+  drawCubes();
+
   renderer.render(scene, camera);
+}
+
+function drawCubes() {
+  if (!isMouseDown)
+    return;
+
+  // update the picking ray with the camera and mouse position  
+  raycaster.setFromCamera( mouse, camera ); 
+  // calculate objects intersecting the picking ray
+  var intersects = raycaster.intersectObjects(scene.children, true);
+  if (intersects.length == 0)
+    return;
+  if (intersects[0].object.name == "clickableCanvas") {
+    var p = intersects[0].point;
+    var cube = createCube(Math.round(p.x), Math.round(p.y), 0);
+    scene.add(cube);
+    seedObjects.push(cube);
+  }
+}
+
+function onMouseMove( event ) {
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;   
+}
+
+function onMouseDown(event) {
+  isMouseDown = true;
+}
+
+function onMouseUp( event ) {
+  isMouseDown = false;
+}
+
+function createCube(x, y, z) {
+  var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  var material = new THREE.MeshNormalMaterial();
+  var cube = new THREE.Mesh( geometry, material );
+  cube.position.set(x, y, z);
+  return cube;
 }
 
 function boundsFrame(num, length) {
@@ -118,10 +200,10 @@ function generateSprite(xSize, ySize) {
   return sprite;
 }
 
-function generateAnimatableSprite(numFrames, iterations, xSize, ySize) {
+function generateAnimatableSprite(numFrames, iterations, xSize, ySize, seedFunc) {
   var spriteFrames = new Array();
   var sprite = createSprite(xSize, ySize);
-  sprite = seedSprite(sprite);
+  sprite = seedFunc(sprite);
   for (var i = 0; i < iterations; i++) {
     sprite = tick(sprite);
     if ((iterations - numFrames) <= i) {
