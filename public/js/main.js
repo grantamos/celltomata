@@ -10,8 +10,8 @@ var color = "#F00";
 var border = false;
 
 //Kill and grow should be 0 - 9
-var killCount = 6;
-var growCount = 2;
+var killCount = 4;
+var growCount = 1;
 var iterations = 4;
 
 init();
@@ -110,9 +110,10 @@ function getNeighborCount(sprite, x, y) {
   var count = 0;
   for (var xx = x - 1; xx < x + 1; xx++) {
     for (var yy = y - 1; yy < y + 1; yy++) {
-      if (sprite[x][y] != 0) {
+      if (xx < 0 || yy < 0 || xx > sprite.length || yy > sprite[0].length)
+        continue;
+      if (sprite[xx][yy] != 0)
         count++;
-      }
     }
   }
 
