@@ -12,7 +12,8 @@ var border = false;
 //Kill and grow should be 0 - 9
 var killCount = 4;
 var growCount = 1;
-var iterations = 4;
+var iterations = 6;
+var animFrames = 4;
 
 init();
 animate();
@@ -24,9 +25,16 @@ function init() {
   camera.position.z = 50;
   scene.add(camera);
 
-  var sprite = generateSprite(tileSize / 2, tileSize);
-  spriteMesh = generateSpriteMesh(sprite, true);
+  spriteMesh = new THREE.Object3D();
 
+  var spriteFrames = generateAnimatableSprite(animFrames, iterations, tileSize / 2, tileSize);
+  for (var i = 0; i < spriteFrames.length; i++) {
+    var meshFrame = generateSpriteMesh(spriteFrames[i], true);
+    meshFrame.visible = false;
+    spriteMesh.add(meshFrame);
+  }
+
+  spriteMesh.currentFrame = 0;
   scene.add(spriteMesh);
 
   renderer = new THREE.WebGLRenderer();
@@ -39,9 +47,19 @@ function animate() {
   render();
 }
 
+var startTime = 0;
+var frameLength = .2;
 function render() {
-  spriteMesh.rotation.x += 0.005;
-  spriteMesh.rotation.y += 0.003;
+  startTime += 1/60.0;
+  if (startTime > frameLength) {
+    startTime = 0;
+    spriteMesh.children[spriteMesh.currentFrame].visible = false;
+    spriteMesh.currentFrame = (spriteMesh.currentFrame + 1) % spriteMesh.children.length;
+    spriteMesh.children[spriteMesh.currentFrame].visible = true;
+  }
+
+  // spriteMesh.rotation.x += 0.005;
+  // spriteMesh.rotation.y += 0.003;
 
   renderer.render(scene, camera);
 }
@@ -92,15 +110,16 @@ function generateSprite(xSize, ySize) {
   return sprite;
 }
 
-function generateAnimatableSprite(xSize, ySize) {
-  var spriteFrames = {};
+function generateAnimatableSprite(numFrames, iterations, xSize, ySize) {
+  var spriteFrames = new Array();
   var sprite = createSprite(xSize, ySize);
   sprite = seedSprite(sprite);
   for (var i = 0; i < iterations; i++) {
-    spriteFrames.firstFrame = sprite;
     sprite = tick(sprite);
+    if ((iterations - numFrames) <= i) {
+      spriteFrames.push(sprite);
+    }
   }
-  spriteFrames.lastFrame = sprite;
 
   return spriteFrames;
 }
