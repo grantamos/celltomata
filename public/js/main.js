@@ -12,8 +12,8 @@ var border = false;
 //Kill and grow should be 0 - 9
 var killCount = 4;
 var growCount = 1;
-var iterations = 6;
-var animFrames = 4;
+var iterations = 4;
+var animFrames = 3;
 
 init();
 animate();
@@ -48,20 +48,28 @@ function animate() {
 }
 
 var startTime = 0;
-var frameLength = .2;
+var frameLength = .1;
 function render() {
   startTime += 1/60.0;
   if (startTime > frameLength) {
     startTime = 0;
-    spriteMesh.children[spriteMesh.currentFrame].visible = false;
-    spriteMesh.currentFrame = (spriteMesh.currentFrame + 1) % spriteMesh.children.length;
-    spriteMesh.children[spriteMesh.currentFrame].visible = true;
+
+    var hideFrame = boundsFrame(spriteMesh.currentFrame, spriteMesh.children.length)
+    var showFrame = boundsFrame(++spriteMesh.currentFrame, spriteMesh.children.length)
+
+    spriteMesh.children[hideFrame].visible = false;
+    spriteMesh.children[showFrame].visible = true;
   }
 
-  // spriteMesh.rotation.x += 0.005;
-  // spriteMesh.rotation.y += 0.003;
-
   renderer.render(scene, camera);
+}
+
+function boundsFrame(num, length) {
+  var value = Math.floor(num / length) % 2;
+  var count = num % length;
+  if (value == 1)
+    return length - count - 1;
+  return count;
 }
 
 function generateSpriteMesh(sprite, isSymmetric) {
