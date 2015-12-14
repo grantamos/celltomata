@@ -34,7 +34,7 @@ function init() {
   spriteMesh = new THREE.Object3D();
 
   var spriteFrames = generateAnimatableSprite(animFrames, iterations, tileSize / 2, tileSize);
-  spriteColor = ((1<<24)*Math.random()|0);
+  spriteColor = randomColor();
   for (var i = 0; i < spriteFrames.length; i++) {
     var meshFrame = generateSpriteMesh(spriteFrames[i], true);
     meshFrame.visible = false;
@@ -106,17 +106,17 @@ function generateSpriteMesh(sprite, isSymmetric) {
       cube.position.set(x - xOffset, y - yOffset, 0);
       sprite3d.add(cube);
 
-      // var wfh = new THREE.WireframeHelper( cube, 0xffffff );
-      // wfh.material.linewidth = 2; // looks much better if your PC will support it
-      // scene.add( wfh );
+      var wfh = new THREE.BoxHelper( cube, spriteColor );
+      wfh.material.linewidth = 2; // looks much better if your PC will support it
+      sprite3d.add( wfh );
 
       if (isSymmetric) {
         cube = cube.clone();
         cube.position.set(-x, y, 0);
         sprite3d.add(cube);
-        // var wfh = new THREE.WireframeHelper( cube, 0xffffff );
-        // wfh.material.linewidth = 2; // looks much better if your PC will support it
-        // scene.add( wfh );
+        var wfh = new THREE.BoxHelper( cube, spriteColor );
+        wfh.material.linewidth = 2; // looks much better if your PC will support it
+        sprite3d.add( wfh );
       }
     }
   }
