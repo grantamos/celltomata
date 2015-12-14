@@ -2,6 +2,7 @@ var camera, scene, renderer, geometry, material, mesh;
 
 var sprites = new Array();
 var spriteMesh;
+var directionalLight;
 
 //Inputs
 var size = 16;
@@ -21,13 +22,19 @@ animate();
 function init() {
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+  var xRatio = window.innerWidth / window.innerHeight;
+  camera = new THREE.OrthographicCamera(tileSize * -xRatio, tileSize * xRatio, tileSize, -tileSize, 1, 10000);
   camera.position.z = 50;
   scene.add(camera);
+
+  directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  directionalLight.position.z = 4;
+  scene.add( directionalLight );
 
   spriteMesh = new THREE.Object3D();
 
   var spriteFrames = generateAnimatableSprite(animFrames, iterations, tileSize / 2, tileSize);
+  spriteColor = ((1<<24)*Math.random()|0);
   for (var i = 0; i < spriteFrames.length; i++) {
     var meshFrame = generateSpriteMesh(spriteFrames[i], true);
     meshFrame.visible = false;
@@ -35,9 +42,11 @@ function init() {
   }
 
   spriteMesh.currentFrame = 0;
+  spriteMesh.rotation.set(35 * Math.PI / 180, -45 * Math.PI / 180, 0);
   scene.add(spriteMesh);
 
   renderer = new THREE.WebGLRenderer();
+  //renderer.setPixelRatio(.5);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 }
@@ -72,6 +81,7 @@ function boundsFrame(num, length) {
   return count;
 }
 
+var spriteColor;
 function generateSpriteMesh(sprite, isSymmetric) {
   var xSize = sprite.length;
   var ySize = sprite[0].length;
@@ -91,16 +101,22 @@ function generateSpriteMesh(sprite, isSymmetric) {
         continue;
 
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-      var material = new THREE.MeshNormalMaterial();
+      var material = new THREE.MeshLambertMaterial({color: spriteColor});
       var cube = new THREE.Mesh( geometry, material );
       cube.position.set(x - xOffset, y - yOffset, 0);
-
       sprite3d.add(cube);
+
+      // var wfh = new THREE.WireframeHelper( cube, 0xffffff );
+      // wfh.material.linewidth = 2; // looks much better if your PC will support it
+      // scene.add( wfh );
 
       if (isSymmetric) {
         cube = cube.clone();
         cube.position.set(-x, y, 0);
         sprite3d.add(cube);
+        // var wfh = new THREE.WireframeHelper( cube, 0xffffff );
+        // wfh.material.linewidth = 2; // looks much better if your PC will support it
+        // scene.add( wfh );
       }
     }
   }
