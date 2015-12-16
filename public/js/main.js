@@ -4,7 +4,7 @@ var sprites = new Array();
 var spriteMesh;
 
 //Inputs
-var tileSize = 12;
+var tileSize = 8;
 var color = "#F00";
 var border = false;
 
