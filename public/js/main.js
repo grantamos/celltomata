@@ -4,10 +4,13 @@ var sprites = new Array();
 var spriteMesh;
 
 //Inputs
-var size = 16;
-var tileSize = 16;
+var tileSize = 12;
 var color = "#F00";
 var border = false;
+
+var setTileSize = function(newSize) { tileSize = newSize }
+var setColor = function(newColor) { color = newColor }
+var setBorder = function(shouldShowBorder) { border = shouldShowBorder }
 
 //Kill and grow should be 0 - 9
 var killCount = 4;
@@ -15,8 +18,10 @@ var growCount = 1;
 var iterations = 4;
 var animFrames = 3;
 
-init();
-animate();
+window.onload = function() {
+  init()
+  animate()
+};
 
 function init() {
   scene = new THREE.Scene();
@@ -24,6 +29,22 @@ function init() {
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
   camera.position.z = 50;
   scene.add(camera);
+
+  var canvas = document.getElementById("canvas")
+  var controlPanel = document.getElementById("controlPanel")
+
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight * 0.8
+  controlPanel.height = window.innerHeight * 0.2
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas })
+  renderer.setSize(canvas.width, canvas.height)
+
+  redrawSprite()
+}
+
+function redrawSprite() {
+  scene.remove(spriteMesh)
 
   spriteMesh = new THREE.Object3D();
 
@@ -36,10 +57,6 @@ function init() {
 
   spriteMesh.currentFrame = 0;
   scene.add(spriteMesh);
-
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
 }
 
 function animate() {
@@ -50,6 +67,8 @@ function animate() {
 var startTime = 0;
 var frameLength = .1;
 function render() {
+  if (!spriteMesh) { renderer.render(scene, camera); return }
+
   startTime += 1/60.0;
   if (startTime > frameLength) {
     startTime = 0;
@@ -104,7 +123,7 @@ function generateSpriteMesh(sprite, isSymmetric) {
       }
     }
   }
-  
+
   return sprite3d;
 }
 

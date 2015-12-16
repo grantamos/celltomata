@@ -4,3 +4,8 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+#controlPanel {
+  background: #4A4A4A;
+  color: white;
+}

@@ -4,6 +4,20 @@
     <script src="lib/three.min.js"></script>
   </head>
   <body>
+    <canvas id="canvas"></canvas>
     <script src="js/main.js"></script>
+    <div id="controlPanel">
+
+      Tile Size:
+      <input type="button" onclick="setTileSize(8)" value="8">
+      <input type="button" onclick="setTileSize(16)" value="16">
+      <input type="button" onclick="setTileSize(32)" value="32">
+      <input type="button" onclick="setTileSize(64)" value="64">
+
+      <br><br>
+
+      <input type="button" onClick="redrawSprite()" value = "Render">
+
+    </div>
   </body>
 </html>
