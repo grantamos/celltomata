@@ -3,14 +3,11 @@ var camera, scene, renderer, geometry, material, mesh;
 var sprites = new Array();
 var spriteMesh;
 
-//Inputs
-var tileSize = 8;
-var color = "#F00";
-var border = false;
-
-var setTileSize = function(newSize) { tileSize = newSize }
-var setColor = function(newColor) { color = newColor }
-var setBorder = function(shouldShowBorder) { border = shouldShowBorder }
+var params = {
+  tileSize: 8,
+  color: "#F00",
+  border: false
+}
 
 //Kill and grow should be 0 - 9
 var killCount = 4;
@@ -48,7 +45,7 @@ function redrawSprite() {
 
   spriteMesh = new THREE.Object3D();
 
-  var spriteFrames = generateAnimatableSprite(animFrames, iterations, tileSize / 2, tileSize);
+  var spriteFrames = generateAnimatableSprite(animFrames, iterations, params.tileSize / 2, params.tileSize);
   for (var i = 0; i < spriteFrames.length; i++) {
     var meshFrame = generateSpriteMesh(spriteFrames[i], true);
     meshFrame.visible = false;
