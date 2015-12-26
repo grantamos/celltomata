@@ -1,7 +1,4 @@
-var camera, scene, renderer, geometry, material, mesh;
-
-var sprites = new Array();
-var spriteMesh;
+var camera, scene, renderer, spriteMesh
 
 var params = {
   tileSize: 8,
